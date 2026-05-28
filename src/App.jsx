@@ -22,7 +22,7 @@ const brand = {
   domain: "a2cai.in",
   email: "abhaywahane38@gmail.com",
   founder: "Abhay Wahane",
-  web3formsKey: "YOUR_WEB3FORMS_ACCESS_KEY", // Get your free access key at https://web3forms.com/
+  web3formsKey: "dcda3533-f6ed-436e-abb3-d1fea7e68792", // Get your free access key at https://web3forms.com/
 };
 
 const products = [
