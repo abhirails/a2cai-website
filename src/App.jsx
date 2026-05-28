@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -11,11 +11,9 @@ import {
   Globe2,
   Mail,
   Menu,
-  ReceiptText,
   ShieldCheck,
   Sparkles,
   X,
-  Zap,
 } from "lucide-react";
 
 const brand = {
