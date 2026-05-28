@@ -764,6 +764,7 @@ function App() {
                   </div>
                 )}
                 <input
+                  id="contact-name"
                   className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
                   placeholder="Your name"
                   value={contactForm.name}
@@ -772,6 +773,7 @@ function App() {
                   required
                 />
                 <input
+                  id="contact-email"
                   className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
                   placeholder="Email address"
                   type="email"
@@ -781,6 +783,7 @@ function App() {
                   required
                 />
                 <select
+                  id="contact-topic"
                   className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50"
                   value={contactForm.topic}
                   onChange={(event) => updateContactField("topic", event.target.value)}
@@ -792,6 +795,7 @@ function App() {
                   <option>Other A2C AI product enquiry</option>
                 </select>
                 <textarea
+                  id="contact-message"
                   className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
                   placeholder="Tell us what you need"
                   value={contactForm.message}
@@ -800,6 +804,7 @@ function App() {
                   required
                 />
                 <button
+                  id="contact-submit"
                   type="submit"
                   disabled={submitStatus === "submitting"}
                   className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
