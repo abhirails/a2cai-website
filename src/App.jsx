@@ -334,6 +334,12 @@ function SectionLabel({ children }) {
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [policyKey, setPolicyKey] = useState(null);
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    topic: "HireSetu demo",
+    message: "",
+  });
 
   const navItems = useMemo(
     () => [
@@ -349,6 +355,24 @@ function App() {
     setMobileOpen(false);
     const target = document.querySelector(href);
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const updateContactField = (field, value) => {
+    setContactForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleContactSubmit = (event) => {
+    event.preventDefault();
+
+    const subject = encodeURIComponent(`A2C AI enquiry: ${contactForm.topic}`);
+    const body = encodeURIComponent(
+      `Name: ${contactForm.name || "Not provided"}\n` +
+        `Email: ${contactForm.email || "Not provided"}\n` +
+        `Topic: ${contactForm.topic}\n\n` +
+        `Message:\n${contactForm.message || "Not provided"}`
+    );
+
+    window.location.href = `mailto:${brand.email}?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -683,21 +707,40 @@ function App() {
                 </div>
               </div>
             </div>
-            <form className="grid gap-4" onSubmit={(event) => event.preventDefault()}>
-              <input className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50" placeholder="Your name" />
-              <input className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50" placeholder="Email address" />
-              <select className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50">
+            <form className="grid gap-4" onSubmit={handleContactSubmit}>
+              <input
+                className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                placeholder="Your name"
+                value={contactForm.name}
+                onChange={(event) => updateContactField("name", event.target.value)}
+              />
+              <input
+                className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                placeholder="Email address"
+                value={contactForm.email}
+                onChange={(event) => updateContactField("email", event.target.value)}
+              />
+              <select
+                className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                value={contactForm.topic}
+                onChange={(event) => updateContactField("topic", event.target.value)}
+              >
                 <option>HireSetu demo</option>
                 <option>Local deployment enquiry</option>
                 <option>Razorpay / billing setup</option>
                 <option>Other A2C AI product enquiry</option>
               </select>
-              <textarea className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50" placeholder="Tell us what you need" />
+              <textarea
+                className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                placeholder="Tell us what you need"
+                value={contactForm.message}
+                onChange={(event) => updateContactField("message", event.target.value)}
+              />
               <button className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01]">
                 Send Enquiry
                 <ChevronRight className="ml-2 h-4 w-4" />
               </button>
-              <p className="text-xs leading-5 text-slate-500">This static form is ready for integration with your backend, Formspree, Google Forms, or email API.</p>
+              <p className="text-xs leading-5 text-slate-500">This button opens the visitor's email app with the enquiry details pre-filled. Later, you can connect it to Formspree, Google Forms, or your own backend API.</p>
             </form>
           </div>
         </section>
