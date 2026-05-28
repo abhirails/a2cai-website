@@ -20,7 +20,7 @@ const brand = {
   name: "A2C AI",
   tagline: "About to Change",
   domain: "a2cai.in",
-  email: "contact@a2cai.in",
+  email: "abhaywahane38@gmail.com",
   founder: "Abhay Wahane",
 };
 
@@ -94,7 +94,7 @@ const policyContent = {
       "For products such as HireSetu, users may upload recruitment-related information such as resumes, job descriptions, candidate details, and billing information. Such data is used only for providing the requested product functionality.",
       "We do not sell customer data. Payment information is processed through third-party payment providers such as Razorpay. We do not store card or UPI credentials on our servers.",
       "Customers are responsible for ensuring they have the right to upload and process candidate or business data through our services.",
-      "For privacy requests, contact us at contact@a2cai.in.",
+      "For privacy requests, contact us at abhaywahane38@gmail.com.",
     ],
   },
   terms: {
@@ -114,7 +114,7 @@ const policyContent = {
       "Refund eligibility depends on the plan, activation status, usage, and the specific agreement at the time of purchase.",
       "For standard monthly SaaS subscriptions, refunds are generally not provided after workspace activation unless there is a confirmed duplicate payment or technical issue preventing access.",
       "Approved refunds, if any, will be processed through the original payment method within the timeline supported by the payment provider.",
-      "For cancellation or refund requests, contact contact@a2cai.in with payment reference and account details.",
+      "For cancellation or refund requests, contact abhaywahane38@gmail.com with payment reference and account details.",
     ],
   },
   shipping: {
@@ -124,7 +124,7 @@ const policyContent = {
       "Product access is delivered digitally after payment confirmation, account verification, and workspace activation.",
       "For SaaS subscriptions, access details are provided through the application dashboard, registered email, or onboarding communication.",
       "In cases requiring manual configuration, activation time may vary based on the selected plan and customer requirements.",
-      "For delivery/access issues, contact contact@a2cai.in.",
+      "For delivery/access issues, contact abhaywahane38@gmail.com.",
     ],
   },
 };
