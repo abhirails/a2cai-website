@@ -22,6 +22,7 @@ const brand = {
   domain: "a2cai.in",
   email: "abhaywahane38@gmail.com",
   founder: "Abhay Wahane",
+  web3formsKey: "YOUR_WEB3FORMS_ACCESS_KEY", // Get your free access key at https://web3forms.com/
 };
 
 const products = [
@@ -332,6 +333,8 @@ function SectionLabel({ children }) {
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [policyKey, setPolicyKey] = useState(null);
+  const [submitStatus, setSubmitStatus] = useState("idle"); // 'idle' | 'submitting' | 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState("");
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -359,18 +362,46 @@ function App() {
     setContactForm((current) => ({ ...current, [field]: value }));
   };
 
-  const handleContactSubmit = (event) => {
+  const handleContactSubmit = async (event) => {
     event.preventDefault();
+    if (!contactForm.email) {
+      setErrorMessage("Please enter your email address.");
+      setSubmitStatus("error");
+      return;
+    }
 
-    const subject = encodeURIComponent(`A2C AI enquiry: ${contactForm.topic}`);
-    const body = encodeURIComponent(
-      `Name: ${contactForm.name || "Not provided"}\n` +
-        `Email: ${contactForm.email || "Not provided"}\n` +
-        `Topic: ${contactForm.topic}\n\n` +
-        `Message:\n${contactForm.message || "Not provided"}`
-    );
+    setSubmitStatus("submitting");
+    setErrorMessage("");
 
-    window.location.href = `mailto:${brand.email}?subject=${subject}&body=${body}`;
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: brand.web3formsKey || "YOUR_WEB3FORMS_ACCESS_KEY",
+          name: contactForm.name,
+          email: contactForm.email,
+          subject: `A2C AI Website Enquiry: ${contactForm.topic}`,
+          message: contactForm.message,
+          from_name: "A2C AI Contact Form",
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setSubmitStatus("success");
+      } else {
+        setErrorMessage(result.message || "Failed to send the enquiry. Please try again.");
+        setSubmitStatus("error");
+      }
+    } catch (error) {
+      console.error("Enquiry submission error:", error);
+      setErrorMessage("A network error occurred. Please check your connection and try again.");
+      setSubmitStatus("error");
+    }
   };
 
   return (
@@ -705,41 +736,90 @@ function App() {
                 </div>
               </div>
             </div>
-            <form className="grid gap-4" onSubmit={handleContactSubmit}>
-              <input
-                className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                placeholder="Your name"
-                value={contactForm.name}
-                onChange={(event) => updateContactField("name", event.target.value)}
-              />
-              <input
-                className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                placeholder="Email address"
-                value={contactForm.email}
-                onChange={(event) => updateContactField("email", event.target.value)}
-              />
-              <select
-                className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50"
-                value={contactForm.topic}
-                onChange={(event) => updateContactField("topic", event.target.value)}
-              >
-                <option>HireSetu demo</option>
-                <option>Local deployment enquiry</option>
-                <option>Razorpay / billing setup</option>
-                <option>Other A2C AI product enquiry</option>
-              </select>
-              <textarea
-                className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                placeholder="Tell us what you need"
-                value={contactForm.message}
-                onChange={(event) => updateContactField("message", event.target.value)}
-              />
-              <button className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01]">
-                Send Enquiry
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </button>
-              <p className="text-xs leading-5 text-slate-500">This button opens the visitor's email app with the enquiry details pre-filled. Later, you can connect it to Formspree, Google Forms, or your own backend API.</p>
-            </form>
+            {submitStatus === "success" ? (
+              <div className="flex flex-col items-center justify-center text-center p-8 rounded-[2rem] border border-emerald-500/20 bg-emerald-500/5 min-h-[350px]">
+                <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-400/20 text-emerald-400 mb-4 animate-bounce">
+                  <Check className="h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-black text-white">Enquiry Sent!</h3>
+                <p className="mt-2 text-sm text-slate-300 max-w-sm leading-6">
+                  Thank you for reaching out. We have received your enquiry and will get back to you at <span className="text-cyan-200 font-semibold">{contactForm.email}</span> shortly.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmitStatus("idle");
+                    setContactForm({ name: "", email: "", topic: "HireSetu demo", message: "" });
+                  }}
+                  className="mt-6 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-xs font-bold text-white transition hover:bg-white/10"
+                >
+                  Send another enquiry
+                </button>
+              </div>
+            ) : (
+              <form className="grid gap-4" onSubmit={handleContactSubmit}>
+                {submitStatus === "error" && (
+                  <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-200">
+                    {errorMessage}
+                  </div>
+                )}
+                <input
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                  placeholder="Your name"
+                  value={contactForm.name}
+                  onChange={(event) => updateContactField("name", event.target.value)}
+                  disabled={submitStatus === "submitting"}
+                  required
+                />
+                <input
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                  placeholder="Email address"
+                  type="email"
+                  value={contactForm.email}
+                  onChange={(event) => updateContactField("email", event.target.value)}
+                  disabled={submitStatus === "submitting"}
+                  required
+                />
+                <select
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                  value={contactForm.topic}
+                  onChange={(event) => updateContactField("topic", event.target.value)}
+                  disabled={submitStatus === "submitting"}
+                >
+                  <option>HireSetu demo</option>
+                  <option>Local deployment enquiry</option>
+                  <option>Razorpay / billing setup</option>
+                  <option>Other A2C AI product enquiry</option>
+                </select>
+                <textarea
+                  className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                  placeholder="Tell us what you need"
+                  value={contactForm.message}
+                  onChange={(event) => updateContactField("message", event.target.value)}
+                  disabled={submitStatus === "submitting"}
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={submitStatus === "submitting"}
+                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitStatus === "submitting" ? (
+                    <>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Enquiry
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </button>
+                <p className="text-xs leading-5 text-slate-500">
+                  This form uses Web3Forms to deliver submissions directly to your email. Get a free access key at <a href="https://web3forms.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:underline font-bold">web3forms.com</a>.
+                </p>
+              </form>
+            )}
           </div>
         </section>
       </main>
