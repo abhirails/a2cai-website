@@ -1201,7 +1201,7 @@ function App() {
                 <Building2 className="h-5 w-5 text-cyan-200 font-bold" />
                 <div>
                   <div className="text-xs text-slate-400 font-bold">Company Identity</div>
-                  <span className="font-bold text-white">A2C AI — Enterprise SaaS Products</span>
+                  <span className="font-bold text-white">A2C AI — Online AI SaaS Products</span>
                 </div>
               </div>
             </div>
