@@ -38,14 +38,14 @@ const plans = [
     price: "Free",
     period: "",
     description: "Get started with basic AI recruitment tools.",
-    features: ["1 workspace", "Resume upload (up to 5)", "Basic AI scoring", "Candidate pipeline", "Email support"],
+    features: ["10 resume scans", "Basic AI scoring", "Candidate pipeline preview", "Email support"],
   },
   {
     name: "Starter",
     price: "₹999",
     period: "/month",
     description: "For small teams starting with AI hiring.",
-    features: ["Everything in Demo", "Resume upload (up to 50/mo)", "AI scorecards", "Job assignment manager", "Standard support"],
+    features: ["100 resume scans/month", "AI scorecards", "Job assignment manager", "Standard support"],
   },
   {
     name: "Growth",
@@ -53,21 +53,21 @@ const plans = [
     period: "/month",
     description: "For growing teams that need billing and roles.",
     featured: true,
-    features: ["Everything in Starter", "Unlimited resume uploads", "Multi-HR login", "RBAC & team roles", "Priority support"],
+    features: ["1,000 resume scans/month", "Multi-HR login", "RBAC and team roles", "Priority support"],
   },
   {
     name: "Agency Pro",
     price: "₹7,999",
     period: "/month",
     description: "For professional recruitment agencies.",
-    features: ["Everything in Growth", "Multiple client workspaces", "GST-ready billing & invoices", "Dedicated account support", "SLA options"],
+    features: ["10,000 resume scans/month", "Multiple client workspaces", "GST-ready billing and invoices", "Dedicated support"],
   },
   {
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "Need private cloud, custom workflows, dedicated database, or enterprise onboarding? Contact Sales for a custom deployment plan.",
-    features: ["Private cloud deployment", "Local database connectors", "Custom workflows", "Dedicated database options", "Implementation support"],
+    description: "Need private cloud, custom workflows, dedicated database, or enterprise onboarding? Contact Sales for a dedicated deployment plan.",
+    features: ["Private cloud or dedicated deployment", "Custom workflows", "Custom database and integration support", "SLA and onboarding support"],
   },
 ];
 
@@ -859,16 +859,16 @@ function App() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
-                onClick={() => handleNav("/contact?topic=HireSetu Demo Inquiry")}
+                onClick={() => handleNav("/contact?topic=HireSetu Demo Access")}
                 className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.25)] transition hover:scale-[1.02] cursor-pointer border-none"
               >
-                Launch Demo
+                Request Demo Access
               </button>
               <button
-                onClick={() => handleNav("/contact?topic=HireSetu Trial Access")}
+                onClick={() => handleNav("/contact?topic=HireSetu 7-Day Trial")}
                 className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-bold text-white backdrop-blur transition hover:border-cyan-300/40 hover:bg-cyan-300/10 cursor-pointer"
               >
-                Start 7-Day Trial
+                Request 7-Day Trial
               </button>
             </div>
           </motion.div>
@@ -923,7 +923,7 @@ function App() {
                     </div>
                     <div className="flex items-center gap-2 text-slate-300">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      GST Profile: Valid PAN
+                      Expected CTC: ₹12 LPA
                     </div>
                   </div>
                 </div>
@@ -998,7 +998,7 @@ function App() {
             {[
               {
                 title: "Resume Upload",
-                desc: "Universal parsing of Excel, PDF, and messy docx formats with validation layers and structured candidate field extraction.",
+                desc: "Upload PDF/DOCX resumes and extract structured candidate details such as skills, experience, education, notice period, and contact information.",
                 icon: FileText
               },
               {
@@ -1101,14 +1101,21 @@ function App() {
                 </div>
 
                 <button
-                  onClick={() => handleNav(`/contact?topic=HireSetu ${plan.name} Plan Inquiry`)}
+                  onClick={() => {
+                    const topic = plan.name === "Demo"
+                      ? "HireSetu Demo Access"
+                      : plan.name === "Enterprise"
+                        ? "HireSetu Enterprise Inquiry"
+                        : "HireSetu 7-Day Trial";
+                    handleNav(`/contact?topic=${topic}`);
+                  }}
                   className={`mt-8 w-full rounded-xl py-3 text-xs font-black transition cursor-pointer border-none ${
                     plan.featured
                       ? "bg-gradient-to-r from-cyan-400 to-violet-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:scale-[1.02]"
                       : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
                   }`}
                 >
-                  {plan.name === "Demo" ? "Launch Demo" : plan.name === "Enterprise" ? "Contact Sales" : "Start 7-Day Trial"}
+                  {plan.name === "Demo" ? "Request Demo Access" : plan.name === "Enterprise" ? "Contact Sales" : "Request 7-Day Trial"}
                 </button>
               </div>
             ))}
@@ -1130,12 +1137,12 @@ function App() {
           
           <div className="grid gap-4 md:grid-cols-6 text-center text-xs">
             {[
-              { step: "1", label: "Select Plan", desc: "Customer reviews plans above and requests onboarding access." },
-              { step: "2", label: "Provision Account", desc: "Admin logs in to the hosted portal at app.a2cai.in to establish user identity." },
-              { step: "3", label: "Create Workspace", desc: "Configures recruitment workspace details, billing contact, and optionally enters GSTIN." },
-              { step: "4", label: "Billing Setup", desc: "Selects subscription frequency (monthly or annual billing cycles)." },
-              { step: "5", label: "Razorpay Checkout", desc: "Opens the Razorpay checkout interface for secure UPI, card, or netbanking transfer." },
-              { step: "6", label: "Access & Invoice", desc: "Instantly activates workspace benefits and spawns tax-compliant downloadable GST invoices." }
+              { step: "1", label: "Choose Plan", desc: "Customer reviews HireSetu plans and selects Demo, Starter, Growth, Agency Pro, or Enterprise." },
+              { step: "2", label: "Signup / Login", desc: "Customer creates an account or logs in to the HireSetu portal." },
+              { step: "3", label: "Workspace Setup", desc: "Customer creates a recruitment workspace and verifies account details." },
+              { step: "4", label: "Billing Profile", desc: "Customer enters billing name, email, address, and optional GSTIN." },
+              { step: "5", label: "Razorpay Checkout", desc: "Customer completes payment securely through Razorpay using UPI, cards, netbanking, or supported payment methods." },
+              { step: "6", label: "Activation & Invoice", desc: "After successful payment verification, the selected plan is activated and a GST-ready invoice is generated in the billing dashboard." }
             ].map((flow, index) => (
               <div key={flow.step} className="relative rounded-xl border border-white/5 bg-white/[0.01] p-4 flex flex-col items-center">
                 <span className="grid h-7 w-7 place-items-center rounded-full bg-cyan-300/10 text-xs font-black text-cyan-300 border border-cyan-300/20 mb-3">
