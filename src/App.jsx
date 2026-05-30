@@ -95,8 +95,8 @@ const plans = [
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "For enterprise agencies needing custom deployment.",
-    features: ["Custom deployment", "Local database connectors", "Custom branding", "Implementation support", "Dedicated API access"],
+    description: "Need private cloud, custom workflows, dedicated database, or enterprise onboarding? Contact Sales for a custom deployment plan.",
+    features: ["Private cloud deployment", "Local database connectors", "Custom workflows", "Dedicated database options", "Implementation support"],
   },
 ];
 
@@ -480,9 +480,9 @@ function App() {
       <>
         <section id="home" className="mx-auto grid min-h-[86vh] max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <SectionLabel>Parent brand for Enterprise AI SaaS</SectionLabel>
+            <SectionLabel>Parent brand for online AI SaaS</SectionLabel>
             <h1 className="max-w-4xl text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
-              A2C AI builds practical AI SaaS products for growing businesses.
+              A2C AI builds practical online AI SaaS products for growing businesses.
             </h1>
             
             <div className="mt-8 rounded-3xl border border-cyan-300/10 bg-cyan-300/5 p-6 backdrop-blur-md max-w-xl">
@@ -839,10 +839,10 @@ function App() {
               A2C AI HireSetu
             </h1>
             <p className="mt-4 text-xl font-bold bg-gradient-to-r from-cyan-200 via-blue-300 to-violet-300 bg-clip-text text-transparent">
-              AI recruitment SaaS for Indian recruitment agencies and HR teams.
+              Online AI Recruitment SaaS
             </p>
             <p className="mt-6 text-slate-300 leading-8 text-sm sm:text-base">
-              HireSetu automates candidate screening, parsed scoring, pipeline status, and GST billing workflows, built specifically to fit the fast-paced hiring processes of modern Indian companies.
+              HireSetu is an online AI recruitment SaaS that helps recruitment agencies and HR teams upload resumes, score candidates against jobs, manage shortlists, and move hiring faster.
             </p>
 
             <div className="mt-8 rounded-2xl border border-cyan-300/15 bg-cyan-300/5 p-5">
@@ -1112,6 +1112,9 @@ function App() {
                 </button>
               </div>
             ))}
+          </div>
+          <div className="mt-8 text-center text-xs text-slate-400">
+            *Deployment: HireSetu is delivered primarily as an online SaaS. Private cloud or dedicated deployment is available only for Enterprise customers.
           </div>
         </div>
 
