@@ -297,6 +297,7 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("idle"); // 'idle' | 'submitting' | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState("");
+  const [apiSucceeded, setApiSucceeded] = useState(false);
 
   const getQueryParam = (name) => {
     try {
@@ -331,6 +332,8 @@ function App() {
     topic: getQueryParam("topic") || getInitialTopic(),
     message: getQueryParam("message"),
   });
+
+  const isDemoMode = contactForm.topic === "HireSetu Demo Access";
 
   // Navigate utility using history pushState and state synchronization
   const handleNav = (to) => {
@@ -438,6 +441,11 @@ function App() {
     setContactForm((current) => ({ ...current, [field]: value }));
   };
 
+  const isSalesLead = (topic) => {
+    const t = (topic || "").toLowerCase();
+    return t.includes("demo") || t.includes("trial") || t.includes("enterprise");
+  };
+
   const handleContactSubmit = async (event) => {
     event.preventDefault();
     if (!contactForm.email) {
@@ -446,8 +454,18 @@ function App() {
       return;
     }
 
+    if (isSalesLead(contactForm.topic)) {
+      const phoneDigits = (contactForm.phone || "").replace(/[\s\-+]/g, "");
+      if (!phoneDigits || phoneDigits.length < 10) {
+        setErrorMessage("Phone / WhatsApp number is required for demo and trial requests (minimum 10 digits).");
+        setSubmitStatus("error");
+        return;
+      }
+    }
+
     setSubmitStatus("submitting");
     setErrorMessage("");
+    setApiSucceeded(false);
 
     const isDemoRequest = contactForm.topic.toLowerCase().includes("demo");
 
@@ -465,12 +483,14 @@ function App() {
             name: contactForm.name,
             email: contactForm.email,
             company_name: contactForm.company_name || null,
+            phone: contactForm.phone || null,
             message: contactForm.message || "",
             source: "a2cai-website"
           })
         });
 
         if (apiResponse.ok) {
+          setApiSucceeded(true);
           setSubmitStatus("success");
           return;
         } else {
@@ -495,6 +515,7 @@ function App() {
               access_key: brand.web3formsKey || "YOUR_WEB3FORMS_ACCESS_KEY",
               name: contactForm.name,
               email: contactForm.email,
+              phone: contactForm.phone || "N/A",
               subject: `HireSetu Demo Access - API Failed`,
               message: `Company: ${contactForm.company_name || "N/A"}\n\nMessage: ${contactForm.message}\n\nNote: The automated sandbox API failed (Error: ${apiErr.message || "Network Error"}). This lead requires manual sandbox credentials.`,
               from_name: "A2C AI Contact Form (API Fallback)",
@@ -503,6 +524,7 @@ function App() {
 
           const result = await response.json();
           if (result.success) {
+            setApiSucceeded(false);
             setSubmitStatus("success");
           } else {
             setErrorMessage(result.message || "Failed to send the enquiry. Please try again.");
@@ -528,6 +550,7 @@ function App() {
           access_key: brand.web3formsKey || "YOUR_WEB3FORMS_ACCESS_KEY",
           name: contactForm.name,
           email: contactForm.email,
+          phone: contactForm.phone || "N/A",
           subject: `A2C AI Website Enquiry: ${contactForm.topic}`,
           message: `Company: ${contactForm.company_name || "N/A"}\n\nMessage: ${contactForm.message}`,
           from_name: "A2C AI Contact Form",
@@ -536,6 +559,7 @@ function App() {
 
       const result = await response.json();
       if (result.success) {
+        setApiSucceeded(false);
         setSubmitStatus("success");
       } else {
         setErrorMessage(result.message || "Failed to send the enquiry. Please try again.");
@@ -818,9 +842,13 @@ function App() {
           <div className="grid gap-6 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-xl sm:p-10 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <SectionLabel>Quick Inquiry</SectionLabel>
-              <h2 className="text-4xl font-black tracking-tight text-white animate-pulse">Start your A2C AI journey.</h2>
+              <h2 className="text-4xl font-black tracking-tight text-white animate-pulse">
+                {isDemoMode ? "Get your HireSetu Demo Sandbox" : "Start your A2C AI journey."}
+              </h2>
               <p className="mt-4 text-slate-300 leading-7">
-                Contact us for HireSetu demo access, subscription discussion, private deployment, or future A2C AI product enquiries.
+                {isDemoMode 
+                  ? "Enter your details and we’ll send you a secure activation link to create your HireSetu demo workspace." 
+                  : "Contact us for HireSetu demo access, subscription discussion, private deployment, or future A2C AI product enquiries."}
               </p>
               <div className="mt-8 grid gap-4 text-sm text-slate-300">
                 <div className="flex items-center gap-3">
@@ -844,9 +872,19 @@ function App() {
                   <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-400/20 text-emerald-400 mb-4">
                     <Check className="h-8 w-8" />
                   </div>
-                  <h3 className="text-2xl font-black text-white">Enquiry Sent!</h3>
+                  <h3 className="text-2xl font-black text-white">
+                    {isDemoMode ? (apiSucceeded ? "Demo Activation Link Sent!" : "Demo Request Received!") : "Enquiry Sent!"}
+                  </h3>
                   <p className="mt-2 text-sm text-slate-300 max-w-sm leading-6">
-                    Thank you for reaching out. We have received your enquiry and will get back to you at <span className="text-cyan-200 font-semibold">{contactForm.email}</span> shortly.
+                    {isDemoMode ? (
+                      apiSucceeded ? (
+                        <>We’ve sent your HireSetu sandbox activation link to <span className="text-cyan-200 font-semibold">{contactForm.email}</span>. Please check your inbox.</>
+                      ) : (
+                        <>We’ve received your demo request and will send your sandbox activation link shortly.</>
+                      )
+                    ) : (
+                      <>Thank you for reaching out. We have received your enquiry and will get back to you at <span className="text-cyan-200 font-semibold">{contactForm.email}</span> shortly.</>
+                    )}
                   </p>
                   <button
                     type="button"
@@ -886,29 +924,31 @@ function App() {
                   <input
                     id="contact-email-home"
                     className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                    placeholder="Email address"
+                    placeholder={isDemoMode ? "Work Email" : "Email address"}
                     type="email"
                     value={contactForm.email}
                     onChange={(event) => updateContactField("email", event.target.value)}
                     disabled={submitStatus === "submitting"}
                     required
                   />
-                  <select
-                    id="contact-topic-home"
-                    className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50 text-slate-300"
-                    value={contactForm.topic}
-                    onChange={(event) => updateContactField("topic", event.target.value)}
-                    disabled={submitStatus === "submitting"}
-                  >
-                    <option>HireSetu Demo Access</option>
-                    <option>Local deployment enquiry</option>
-                    <option>Razorpay / billing setup</option>
-                    <option>Other A2C AI product enquiry</option>
-                  </select>
+                  {!isDemoMode && (
+                    <select
+                      id="contact-topic-home"
+                      className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition focus:border-cyan-300/50 text-slate-300"
+                      value={contactForm.topic}
+                      onChange={(event) => updateContactField("topic", event.target.value)}
+                      disabled={submitStatus === "submitting"}
+                    >
+                      <option>HireSetu Demo Access</option>
+                      <option>Local deployment enquiry</option>
+                      <option>Razorpay / billing setup</option>
+                      <option>Other A2C AI product enquiry</option>
+                    </select>
+                  )}
                   <textarea
                     id="contact-message-home"
                     className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                    placeholder="Tell us what you need"
+                    placeholder={isDemoMode ? "Message / Use Case" : "Tell us what you need"}
                     value={contactForm.message}
                     onChange={(event) => updateContactField("message", event.target.value)}
                     disabled={submitStatus === "submitting"}
@@ -921,7 +961,7 @@ function App() {
                       disabled={submitStatus === "submitting"}
                       className="flex-1 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
                     >
-                      {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
+                      {submitStatus === "submitting" ? "Sending..." : (isDemoMode ? "Send Demo Activation Link" : "Send Enquiry")}
                       {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
                     </button>
                     {import.meta.env.DEV && (
@@ -1303,9 +1343,13 @@ function App() {
         <div className="grid gap-12 rounded-[2rem] border border-white/10 bg-slate-950/60 p-6 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] backdrop-blur-xl">
           <div>
             <SectionLabel>Contact Us</SectionLabel>
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Start your A2C AI journey.</h1>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
+              {isDemoMode ? "Get your HireSetu Demo Sandbox" : "Start your A2C AI journey."}
+            </h1>
             <p className="mt-4 text-slate-300 leading-7 text-sm sm:text-base">
-              Contact us for HireSetu demo access, subscription discussion, private deployment, or general business enquiries.
+              {isDemoMode 
+                ? "Enter your details and we’ll send you a secure activation link to create your HireSetu demo workspace." 
+                : "Contact us for HireSetu demo access, subscription discussion, private deployment, or general business enquiries."}
             </p>
             
             <div className="mt-8 grid gap-4 text-sm sm:text-base text-slate-300">
@@ -1346,15 +1390,25 @@ function App() {
                 <div className="grid h-16 w-16 place-items-center rounded-full bg-emerald-400/20 text-emerald-400 mb-4 animate-bounce">
                   <Check className="h-8 w-8" />
                 </div>
-                <h3 className="text-2xl font-black text-white">Enquiry Sent!</h3>
+                <h3 className="text-2xl font-black text-white">
+                  {isDemoMode ? (apiSucceeded ? "Demo Activation Link Sent!" : "Demo Request Received!") : "Enquiry Sent!"}
+                </h3>
                 <p className="mt-2 text-sm text-slate-300 max-w-sm leading-6">
-                  Thank you for reaching out. We have received your enquiry and will get back to you at <span className="text-cyan-200 font-semibold">{contactForm.email}</span> shortly.
+                  {isDemoMode ? (
+                    apiSucceeded ? (
+                      <>We’ve sent your HireSetu sandbox activation link to <span className="text-cyan-200 font-semibold">{contactForm.email}</span>. Please check your inbox.</>
+                    ) : (
+                      <>We’ve received your demo request and will send your sandbox activation link shortly.</>
+                    )
+                  ) : (
+                    <>Thank you for reaching out. We have received your enquiry and will get back to you at <span className="text-cyan-200 font-semibold">{contactForm.email}</span> shortly.</>
+                  )}
                 </p>
                 <button
                   type="button"
                   onClick={() => {
                       setSubmitStatus("idle");
-                      setContactForm({ name: "", email: "", company_name: "", topic: getInitialTopic(), message: "" });
+                      setContactForm({ name: "", email: "", company_name: "", phone: "", topic: getInitialTopic(), message: "" });
                     }}
                   className="mt-6 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-xs font-bold text-white transition hover:bg-white/10 cursor-pointer border-none"
                 >
@@ -1395,7 +1449,9 @@ function App() {
                 </div>
                 
                 <div>
-                  <label htmlFor="contact-email" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
+                  <label htmlFor="contact-email" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                    {isDemoMode ? "Work Email" : "Email Address"}
+                  </label>
                   <input
                     id="contact-email"
                     className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
@@ -1407,26 +1463,53 @@ function App() {
                     required
                   />
                 </div>
-                
+ 
                 <div>
-                  <label htmlFor="contact-topic" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Enquiry Subject</label>
+                  <label htmlFor="contact-phone" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                    Phone / WhatsApp Number
+                    {isSalesLead(contactForm.topic) ? (
+                      <span className="ml-2 text-rose-400">*</span>
+                    ) : (
+                      <span className="ml-2 text-slate-500 normal-case font-normal tracking-normal">(optional)</span>
+                    )}
+                  </label>
                   <input
-                    id="contact-topic"
+                    id="contact-phone"
                     className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                    placeholder="HireSetu Demo Access"
-                    value={contactForm.topic}
-                    onChange={(event) => updateContactField("topic", event.target.value)}
+                    placeholder="+91 98765 43210"
+                    type="tel"
+                    value={contactForm.phone}
+                    onChange={(event) => updateContactField("phone", event.target.value)}
                     disabled={submitStatus === "submitting"}
-                    required
                   />
+                  {isSalesLead(contactForm.topic) && (
+                    <p className="mt-1.5 text-[11px] text-slate-500">Required for demo and trial requests. We use this to coordinate demo access and onboarding support.</p>
+                  )}
                 </div>
+ 
+                {!isDemoMode && (
+                  <div>
+                    <label htmlFor="contact-topic" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Enquiry Subject</label>
+                    <input
+                      id="contact-topic"
+                      className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                      placeholder="HireSetu Demo Access"
+                      value={contactForm.topic}
+                      onChange={(event) => updateContactField("topic", event.target.value)}
+                      disabled={submitStatus === "submitting"}
+                      required
+                    />
+                  </div>
+                )}
                 
                 <div>
-                  <label htmlFor="contact-message" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Message</label>
+                  <label htmlFor="contact-message" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                    {isDemoMode ? "Message / Use Case" : "Message"}
+                  </label>
                   <textarea
                     id="contact-message"
                     className="min-h-32 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                    placeholder="Tell us what you need"
+                    placeholder={isDemoMode ? "Message / Use Case" : "Tell us what you need"}
                     value={contactForm.message}
                     onChange={(event) => updateContactField("message", event.target.value)}
                     disabled={submitStatus === "submitting"}
@@ -1441,7 +1524,7 @@ function App() {
                     disabled={submitStatus === "submitting"}
                     className="flex-1 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
                   >
-                    {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
+                    {submitStatus === "submitting" ? "Sending..." : (isDemoMode ? "Send Demo Activation Link" : "Send Enquiry")}
                     {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
                   </button>
                   {import.meta.env.DEV && (
@@ -1452,6 +1535,7 @@ function App() {
                           name: "John Snow",
                           email: "john.snow.sina@gmail.com",
                           company_name: "Winterfell Recruiters",
+                          phone: "+91 9876543210",
                           topic: "HireSetu Demo Access",
                           message: "I want demo access for HireSetu."
                         });
