@@ -1374,7 +1374,7 @@ function App() {
                   <input
                     id="contact-name"
                     className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-                    placeholder="Abhay"
+                    placeholder="Your name"
                     value={contactForm.name}
                     onChange={(event) => updateContactField("name", event.target.value)}
                     disabled={submitStatus === "submitting"}
