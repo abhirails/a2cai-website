@@ -280,6 +280,17 @@ function SectionLabel({ children }) {
   );
 }
 
+const resolveFallbackApiBaseUrl = (origin) => {
+  if (!origin) return "https://api.a2cai.in";
+  if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+    return "http://localhost:5000";
+  }
+  if (origin.includes("staging") || origin.includes("vercel.app")) {
+    return "https://api-staging.a2cai.in";
+  }
+  return "https://api.a2cai.in";
+};
+
 function App() {
   const getPath = () => window.location.pathname || "/";
   const [currentPath, setCurrentPath] = useState(getPath());
@@ -306,6 +317,7 @@ function App() {
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
+    company_name: "",
     topic: getInitialTopic(),
     message: "",
   });
@@ -416,6 +428,74 @@ function App() {
     setSubmitStatus("submitting");
     setErrorMessage("");
 
+    const isDemoRequest = contactForm.topic.toLowerCase().includes("demo");
+
+    if (isDemoRequest) {
+      try {
+        const apiBaseUrl = import.meta.env.VITE_HIRESETU_API_BASE_URL || resolveFallbackApiBaseUrl(window.location.origin);
+        const backendUrl = `${apiBaseUrl}/api/public/demo-access/request`;
+
+        const apiResponse = await fetch(backendUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: contactForm.name,
+            email: contactForm.email,
+            company_name: contactForm.company_name || null,
+            message: contactForm.message || "",
+            source: "a2cai-website"
+          })
+        });
+
+        if (apiResponse.ok) {
+          setSubmitStatus("success");
+          return;
+        } else {
+          const errData = await apiResponse.json().catch(() => ({}));
+          if (apiResponse.status === 429 || apiResponse.status === 403 || (errData.error && (errData.error.includes("expired") || errData.error.includes("limit") || errData.error.includes("disposable") || errData.error.includes("requested")))) {
+            setErrorMessage(errData.error || "Too many demo requests. Please try again later.");
+            setSubmitStatus("error");
+            return;
+          }
+          throw new Error(errData.error || "API returned error code");
+        }
+      } catch (apiErr) {
+        console.warn("HireSetu Demo API failed, falling back to Web3Forms:", apiErr);
+        try {
+          const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              access_key: brand.web3formsKey || "YOUR_WEB3FORMS_ACCESS_KEY",
+              name: contactForm.name,
+              email: contactForm.email,
+              subject: `HireSetu Demo Access - API Failed`,
+              message: `Company: ${contactForm.company_name || "N/A"}\n\nMessage: ${contactForm.message}\n\nNote: The automated sandbox API failed (Error: ${apiErr.message || "Network Error"}). This lead requires manual sandbox credentials.`,
+              from_name: "A2C AI Contact Form (API Fallback)",
+            }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            setSubmitStatus("success");
+          } else {
+            setErrorMessage(result.message || "Failed to send the enquiry. Please try again.");
+            setSubmitStatus("error");
+          }
+        } catch (error) {
+          console.error("Web3Forms backup submission error:", error);
+          setErrorMessage("Failed to submit inquiry. Please check your internet connection.");
+          setSubmitStatus("error");
+        }
+        return;
+      }
+    }
+
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
@@ -428,7 +508,7 @@ function App() {
           name: contactForm.name,
           email: contactForm.email,
           subject: `A2C AI Website Enquiry: ${contactForm.topic}`,
-          message: contactForm.message,
+          message: `Company: ${contactForm.company_name || "N/A"}\n\nMessage: ${contactForm.message}`,
           from_name: "A2C AI Contact Form",
         }),
       });
@@ -751,7 +831,7 @@ function App() {
                     type="button"
                     onClick={() => {
                       setSubmitStatus("idle");
-                      setContactForm({ name: "", email: "", topic: "General Inquiry", message: "" });
+                      setContactForm({ name: "", email: "", company_name: "", topic: "General Inquiry", message: "" });
                     }}
                     className="mt-6 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-xs font-bold text-white transition hover:bg-white/10 cursor-pointer"
                   >
@@ -773,6 +853,14 @@ function App() {
                     onChange={(event) => updateContactField("name", event.target.value)}
                     disabled={submitStatus === "submitting"}
                     required
+                  />
+                  <input
+                    id="contact-company-home"
+                    className="rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                    placeholder="Company Name (optional)"
+                    value={contactForm.company_name}
+                    onChange={(event) => updateContactField("company_name", event.target.value)}
+                    disabled={submitStatus === "submitting"}
                   />
                   <input
                     id="contact-email-home"
@@ -1225,9 +1313,9 @@ function App() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSubmitStatus("idle");
-                    setContactForm({ name: "", email: "", topic: getInitialTopic(), message: "" });
-                  }}
+                      setSubmitStatus("idle");
+                      setContactForm({ name: "", email: "", company_name: "", topic: getInitialTopic(), message: "" });
+                    }}
                   className="mt-6 inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-xs font-bold text-white transition hover:bg-white/10 cursor-pointer border-none"
                 >
                   Send another enquiry
@@ -1251,6 +1339,18 @@ function App() {
                     onChange={(event) => updateContactField("name", event.target.value)}
                     disabled={submitStatus === "submitting"}
                     required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="contact-company" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Company Name</label>
+                  <input
+                    id="contact-company"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                    placeholder="e.g. Acme Corp (optional)"
+                    value={contactForm.company_name}
+                    onChange={(event) => updateContactField("company_name", event.target.value)}
+                    disabled={submitStatus === "submitting"}
                   />
                 </div>
                 
