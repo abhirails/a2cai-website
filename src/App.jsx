@@ -301,7 +301,8 @@ function App() {
   const getQueryParam = (name) => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get(name) || "";
+      const val = searchParams.get(name);
+      return val ? val.trim() : "";
     } catch {
       return "";
     }
@@ -315,17 +316,18 @@ function App() {
         return `HireSetu plan inquiry: ${plan}`;
       }
       const topic = searchParams.get("topic");
-      if (topic) return topic;
+      if (topic) return topic.trim();
     } catch {
       // ignore
     }
-    return "HireSetu demo";
+    return "HireSetu Demo Access";
   };
 
   const [contactForm, setContactForm] = useState({
     name: getQueryParam("name"),
     email: getQueryParam("email"),
     company_name: getQueryParam("company") || getQueryParam("company_name"),
+    phone: getQueryParam("phone"),
     topic: getQueryParam("topic") || getInitialTopic(),
     message: getQueryParam("message"),
   });
@@ -368,20 +370,22 @@ function App() {
         const email = searchParams.get("email");
         const name = searchParams.get("name");
         const company = searchParams.get("company") || searchParams.get("company_name");
+        const phone = searchParams.get("phone");
         const message = searchParams.get("message");
-        let prefill = "HireSetu demo";
+        let prefill = "HireSetu Demo Access";
         if (plan) {
           prefill = `HireSetu plan inquiry: ${plan}`;
         } else if (topic) {
-          prefill = topic;
+          prefill = topic.trim();
         }
         setContactForm((prev) => ({
           ...prev,
           topic: prefill,
-          ...(email && { email }),
-          ...(name && { name }),
-          ...(company && { company_name: company }),
-          ...(message && { message }),
+          ...(email && { email: email.trim() }),
+          ...(name && { name: name.trim() }),
+          ...(company && { company_name: company.trim() }),
+          ...(phone && { phone: phone.trim() }),
+          ...(message && { message: message.trim() }),
         }));
       } catch {
         // ignore
@@ -404,20 +408,22 @@ function App() {
           const email = searchParams.get("email");
           const name = searchParams.get("name");
           const company = searchParams.get("company") || searchParams.get("company_name");
+          const phone = searchParams.get("phone");
           const message = searchParams.get("message");
-          let prefill = "HireSetu demo";
+          let prefill = "HireSetu Demo Access";
           if (plan) {
             prefill = `HireSetu plan inquiry: ${plan}`;
           } else if (topic) {
-            prefill = topic;
+            prefill = topic.trim();
           }
           setContactForm((prev) => ({
             ...prev,
             topic: prefill,
-            ...(email && { email }),
-            ...(name && { name }),
-            ...(company && { company_name: company }),
-            ...(message && { message }),
+            ...(email && { email: email.trim() }),
+            ...(name && { name: name.trim() }),
+            ...(company && { company_name: company.trim() }),
+            ...(phone && { phone: phone.trim() }),
+            ...(message && { message: message.trim() }),
           }));
         } catch {
           // ignore
@@ -894,7 +900,7 @@ function App() {
                     onChange={(event) => updateContactField("topic", event.target.value)}
                     disabled={submitStatus === "submitting"}
                   >
-                    <option>HireSetu demo</option>
+                    <option>HireSetu Demo Access</option>
                     <option>Local deployment enquiry</option>
                     <option>Razorpay / billing setup</option>
                     <option>Other A2C AI product enquiry</option>
@@ -918,21 +924,23 @@ function App() {
                       {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
                       {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setContactForm({
-                          name: "John Snow",
-                          email: "john.snow.sina@gmail.com",
-                          company_name: "Stark Corp",
-                          topic: "HireSetu demo",
-                          message: "Requesting developer sandbox demo access."
-                        });
-                      }}
-                      className="inline-flex items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-950/20 px-6 py-4 text-xs font-bold text-cyan-300 transition hover:bg-cyan-950/40 cursor-pointer border-none"
-                    >
-                      ⚡ Autofill Demo
-                    </button>
+                    {import.meta.env.DEV && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setContactForm({
+                            name: "John Snow",
+                            email: "john.snow.sina@gmail.com",
+                            company_name: "Winterfell Recruiters",
+                            topic: "HireSetu Demo Access",
+                            message: "I want demo access for HireSetu."
+                          });
+                        }}
+                        className="inline-flex items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-950/20 px-6 py-4 text-xs font-bold text-cyan-300 transition hover:bg-cyan-950/40 cursor-pointer border-none"
+                      >
+                        ⚡ Fill Demo Test Data
+                      </button>
+                    )}
                   </div>
                 </form>
               )}
@@ -1436,21 +1444,23 @@ function App() {
                     {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
                     {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setContactForm({
-                        name: "John Snow",
-                        email: "john.snow.sina@gmail.com",
-                        company_name: "Stark Corp",
-                        topic: "HireSetu demo",
-                        message: "Requesting developer sandbox demo access."
-                      });
-                    }}
-                    className="inline-flex items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-950/20 px-6 py-4 text-xs font-bold text-cyan-300 transition hover:bg-cyan-950/40 cursor-pointer border-none"
-                  >
-                    ⚡ Autofill Demo
-                  </button>
+                  {import.meta.env.DEV && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setContactForm({
+                          name: "John Snow",
+                          email: "john.snow.sina@gmail.com",
+                          company_name: "Winterfell Recruiters",
+                          topic: "HireSetu Demo Access",
+                          message: "I want demo access for HireSetu."
+                        });
+                      }}
+                      className="inline-flex items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-950/20 px-6 py-4 text-xs font-bold text-cyan-300 transition hover:bg-cyan-950/40 cursor-pointer border-none"
+                    >
+                      ⚡ Fill Demo Test Data
+                    </button>
+                  )}
                 </div>
               </form>
             )}
