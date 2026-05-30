@@ -281,7 +281,8 @@ function SectionLabel({ children }) {
 }
 
 function App() {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const getPath = () => window.location.pathname || "/";
+  const [currentPath, setCurrentPath] = useState(getPath());
   const [mobileOpen, setMobileOpen] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("idle"); // 'idle' | 'submitting' | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState("");
@@ -310,11 +311,16 @@ function App() {
   });
 
   // Navigate utility using history pushState and state synchronization
-  const handleNav = (path) => {
+  const handleNav = (to) => {
     setMobileOpen(false);
 
-    if (path.includes("#")) {
-      const [basePath, hash] = path.split("#");
+    // Get the pathname part for routing logic
+    const targetPathname = new URL(to, window.location.origin).pathname;
+
+    if (to.includes("#")) {
+      const [basePathWithQuery, hash] = to.split("#");
+      // Strip query parameters from basePath for routing matching
+      const basePath = basePathWithQuery.split("?")[0];
       const normalizedBase = basePath === "" ? "/" : basePath;
 
       if (currentPath === normalizedBase) {
@@ -323,7 +329,7 @@ function App() {
           target.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       } else {
-        window.history.pushState({}, "", normalizedBase + "#" + hash);
+        window.history.pushState({}, "", to);
         setCurrentPath(normalizedBase);
 
         setTimeout(() => {
@@ -334,15 +340,15 @@ function App() {
         }, 150);
       }
     } else {
-      window.history.pushState({}, "", path);
-      setCurrentPath(path);
-      window.scrollTo(0, 0);
+      window.history.pushState({}, "", to);
+      setCurrentPath(targetPathname);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     // Prefill contact topic if navigating to contact path
-    if (path.includes("/contact")) {
-      const queryStr = path.includes("?")
-        ? path.split("?")[1]
+    if (targetPathname === "/contact") {
+      const queryStr = to.includes("?")
+        ? "?" + to.split("?")[1]
         : window.location.search;
       try {
         const searchParams = new URLSearchParams(queryStr);
@@ -367,7 +373,7 @@ function App() {
   // Listen to popstate event for browser back/forward routing
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname;
+      const path = getPath();
       setCurrentPath(path);
       
       // Update contact form topic if popping back to /contact
@@ -859,13 +865,13 @@ function App() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
-                onClick={() => handleNav("/contact?topic=HireSetu Demo Access")}
+                onClick={() => handleNav("/contact?topic=HireSetu%20Demo%20Access")}
                 className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.25)] transition hover:scale-[1.02] cursor-pointer border-none"
               >
                 Request Demo Access
               </button>
               <button
-                onClick={() => handleNav("/contact?topic=HireSetu 7-Day Trial")}
+                onClick={() => handleNav("/contact?topic=HireSetu%207-Day%20Trial")}
                 className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-bold text-white backdrop-blur transition hover:border-cyan-300/40 hover:bg-cyan-300/10 cursor-pointer"
               >
                 Request 7-Day Trial
@@ -1107,7 +1113,7 @@ function App() {
                       : plan.name === "Enterprise"
                         ? "HireSetu Enterprise Inquiry"
                         : "HireSetu 7-Day Trial";
-                    handleNav(`/contact?topic=${topic}`);
+                    handleNav(`/contact?topic=${encodeURIComponent(topic)}`);
                   }}
                   className={`mt-8 w-full rounded-xl py-3 text-xs font-black transition cursor-pointer border-none ${
                     plan.featured
@@ -1336,7 +1342,7 @@ function App() {
               <div className="mt-1 font-semibold">Contact our support team</div>
             </div>
             <button
-              onClick={() => handleNav("/contact?topic=" + policy.title + " Query")}
+              onClick={() => handleNav("/contact?topic=" + encodeURIComponent(policy.title + " Query"))}
               className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-4 py-2.5 text-xs font-black text-slate-950 hover:bg-cyan-300 transition cursor-pointer border-none font-bold"
             >
               Contact Support
@@ -1440,7 +1446,7 @@ function App() {
 
           <div className="hidden items-center gap-3 md:flex">
             <button
-              onClick={() => handleNav("/contact?topic=Request Demo")}
+              onClick={() => handleNav("/contact?topic=HireSetu%20Demo%20Access")}
               className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/40 hover:bg-cyan-300/10 cursor-pointer bg-transparent"
             >
               Request Demo
