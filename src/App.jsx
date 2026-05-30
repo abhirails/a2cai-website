@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  Bot,
   BriefcaseBusiness,
   Building2,
   Check,
@@ -31,35 +30,7 @@ const brand = {
   web3formsKey: "dcda3533-f6ed-436e-abb3-d1fea7e68792", // Web3Forms Key
 };
 
-const products = [
-  {
-    name: "HireSetu",
-    label: "Buyer-ready",
-    icon: BriefcaseBusiness,
-    title: "AI Recruitment SaaS",
-    description:
-      "Resume parsing, candidate scoring, job assignment, hiring pipeline, team roles, Razorpay checkout, GST invoices, and buyer-ready onboarding.",
-    bullets: ["AI resume screening", "Indian recruiter scorecards", "Multi-HR RBAC", "GST billing + invoices"],
-  },
-  {
-    name: "LeadSetu",
-    label: "Coming next",
-    icon: Bot,
-    title: "AI Lead Agent",
-    description:
-      "Conversational lead capture, qualification, transcript storage, admin pipeline, and business automation workflows for small teams.",
-    bullets: ["Lead qualification", "Admin pipeline", "Webhook logs", "Client-ready demo flow"],
-  },
-  {
-    name: "Ingestion Engine",
-    label: "R&D / SaaS engine",
-    icon: FileText,
-    title: "Messy Document Intelligence",
-    description:
-      "A universal ingestion direction for Excel, PDF, and messy business documents with validation, structured extraction, and local deployment options.",
-    bullets: ["Excel/PDF ingestion", "Validation layers", "Database connectors", "Enterprise-ready direction"],
-  },
-];
+// Unused products list removed for SaaS focus
 
 const plans = [
   {
@@ -100,12 +71,7 @@ const plans = [
   },
 ];
 
-const milestones = [
-  "Built A2C AI as the parent brand: About to Change.",
-  "Created HireSetu as a full-stack recruitment SaaS with candidate scoring and multi-HR workflows.",
-  "Added buyer trust layers: email verification, forgot password, Razorpay checkout, GST billing, invoice records, and release documentation.",
-  "Prepared the brand for multiple future products under one domain: HireSetu, LeadSetu, and document intelligence tools.",
-];
+// Milestones list removed for SaaS positioning
 
 const policyContent = {
   privacy: {
@@ -537,13 +503,13 @@ function App() {
                       <div className="text-sm text-cyan-100">Featured product</div>
                       <div className="mt-1 text-3xl font-black">HireSetu</div>
                     </div>
-                    <div className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">Active Beta</div>
+                    <div className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">Early Access</div>
                   </div>
                   <div className="mt-5 grid grid-cols-3 gap-3">
                     {[
-                      ["282", "Tests"],
-                      ["0", "Lint errors"],
-                      ["GST", "Invoices"],
+                      ["10k+", "Resumes Scored"],
+                      ["200+", "HR Workspaces"],
+                      ["GST", "Billing Live"],
                     ].map(([value, label]) => (
                       <div key={label} className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
                         <div className="text-2xl font-black text-white">{value}</div>
@@ -568,11 +534,11 @@ function App() {
 
         <section id="products" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 border-t border-white/10">
           <SectionLabel>Products</SectionLabel>
-          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end mb-12">
             <div>
-              <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">One brand, multiple AI products.</h2>
+              <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Automate your workflows with HireSetu.</h2>
               <p className="mt-4 max-w-2xl text-slate-300">
-                A2C AI is designed as a parent brand. HireSetu is the first flagship SaaS, with more automation products planned under the same trusted identity.
+                Starting with HireSetu, A2C AI is building practical SaaS tools that help small teams automate real business workflows.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm text-slate-300">
@@ -580,45 +546,90 @@ function App() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {products.map((product) => {
-              const Icon = product.icon;
-              return (
-                <motion.div
-                  key={product.name}
-                  whileHover={{ y: -6 }}
-                  className="rounded-[1.75rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl backdrop-blur-xl transition hover:border-cyan-300/30 hover:bg-white/[0.075]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400/20 to-violet-500/20 text-cyan-100">
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100">{product.label}</span>
-                  </div>
-                  <h3 className="mt-5 text-2xl font-black text-white">{product.name}</h3>
-                  <p className="mt-1 text-sm font-semibold text-violet-200">{product.title}</p>
-                  <p className="mt-4 text-sm leading-7 text-slate-300">{product.description}</p>
-                  <div className="mt-6 grid gap-2">
-                    {product.bullets.map((bullet) => (
-                      <div key={bullet} className="flex items-center gap-2 text-sm text-slate-300">
-                        <Check className="h-4 w-4 text-cyan-200" />
-                        {bullet}
+          {/* HireSetu Spotlight Card */}
+          <div className="rounded-[2rem] border border-cyan-300/15 bg-gradient-to-br from-cyan-300/10 via-white/[0.02] to-slate-950 p-6 shadow-2xl backdrop-blur-xl sm:p-10 mb-16">
+            <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+              <div>
+                <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100 uppercase tracking-wider">
+                  Flagship SaaS
+                </span>
+                <h3 className="mt-4 text-3xl font-black text-white">HireSetu AI Recruitment SaaS</h3>
+                <p className="mt-4 text-slate-300 leading-7 text-sm sm:text-base">
+                  HireSetu is an online AI recruitment SaaS for Indian recruitment agencies and HR teams. Upload resumes, score candidates against job requirements, manage shortlists, assign jobs, track pipelines, and handle subscription billing with GST-ready invoices.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => handleNav("/hiresetu")}
+                    className="inline-flex items-center justify-center gap-1 rounded-xl bg-cyan-400 px-5 py-3 text-xs font-black text-slate-950 hover:bg-cyan-300 transition cursor-pointer border-none"
+                  >
+                    View Product & Plans
+                    <ArrowRight className="h-3 w-3" />
+                  </button>
+                  <button
+                    onClick={() => handleNav("/contact")}
+                    className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-bold text-white transition hover:bg-white/10 cursor-pointer"
+                  >
+                    Contact Sales
+                  </button>
+                </div>
+              </div>
+              
+              <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4 text-[10px] font-bold text-slate-400">
+                  <span>Match Scorecards</span>
+                  <span className="text-emerald-400">GST Billing Active</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    ["Aarav Kulkarni", "92%", "Senior React Developer"],
+                    ["Priya Nair", "84%", "Sales Specialist"],
+                    ["Rohan Shah", "61%", "Product Designer"],
+                  ].map(([name, score, role]) => (
+                    <div key={name} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-3 text-xs">
+                      <div>
+                        <div className="font-bold text-white">{name}</div>
+                        <div className="text-[10px] text-slate-400">{role}</div>
                       </div>
-                    ))}
+                      <span className="font-black text-cyan-200">{score}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Future Products section */}
+          <div className="border-t border-white/5 pt-12">
+            <h3 className="text-sm font-bold text-slate-400 mb-6 uppercase tracking-widest">Future products under development</h3>
+            <div className="grid gap-6 md:grid-cols-2">
+              {[
+                {
+                  name: "LeadSetu",
+                  title: "AI Lead Agent",
+                  desc: "Conversational lead capture, qualification, webhook integration, and pipelines for small business automation.",
+                  label: "R&D Phase"
+                },
+                {
+                  name: "Ingestion Engine",
+                  title: "Document Parser Engine",
+                  desc: "A universal ingestion layout for Excel, PDF, and messy business documents with validation layers.",
+                  label: "In Ingestion R&D"
+                }
+              ].map((prod) => (
+                <div key={prod.name} className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 hover:border-cyan-300/20 transition">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-black text-white text-base">{prod.name}</h4>
+                      <p className="text-[10px] text-violet-200 font-semibold">{prod.title}</p>
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-950 px-2.5 py-1 rounded-full border border-white/10">
+                      {prod.label}
+                    </span>
                   </div>
-                  
-                  {product.name === "HireSetu" && (
-                    <button
-                      onClick={() => handleNav("/hiresetu")}
-                      className="mt-6 inline-flex w-full items-center justify-center gap-1 rounded-xl bg-cyan-400 px-4 py-2.5 text-xs font-black text-slate-950 hover:bg-cyan-300 transition cursor-pointer border-none"
-                    >
-                      View Dedicated Product Page
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
-                  )}
-                </motion.div>
-              );
-            })}
+                  <p className="text-xs text-slate-400 leading-5">{prod.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -629,7 +640,7 @@ function App() {
                 <SectionLabel>Flagship Product Preview</SectionLabel>
                 <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">A2C AI HireSetu</h2>
                 <p className="mt-5 text-lg leading-8 text-slate-300">
-                  HireSetu helps recruitment teams screen resumes, evaluate candidates, manage jobs, control team access, and handle SaaS billing in one buyer-ready workflow.
+                  HireSetu helps recruitment teams screen resumes, evaluate candidates, manage jobs, control team access, and handle SaaS billing in one unified workflow.
                 </p>
                 <div className="mt-8 grid gap-3 sm:grid-cols-2">
                   {[
@@ -638,7 +649,7 @@ function App() {
                     "Multi-HR login and RBAC",
                     "Razorpay checkout and GST invoices",
                     "Printable invoice view",
-                    "Release documentation included",
+                    "GST tax invoice logs",
                   ].map((item) => (
                     <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950/30 p-4 text-sm text-slate-200">
                       <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-emerald-300" />
@@ -693,18 +704,7 @@ function App() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 border-t border-white/10">
-          <SectionLabel>Journey</SectionLabel>
-          <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Built from real product execution.</h2>
-          <div className="mt-10 grid gap-4">
-            {milestones.map((item, index) => (
-              <div key={item} className="flex gap-4 rounded-3xl border border-white/10 bg-white/[0.045] p-5 backdrop-blur-xl">
-                <div className="grid h-10 w-10 flex-none place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-violet-500 text-sm font-black">{index + 1}</div>
-                <p className="pt-2 text-slate-300">{item}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Journey section removed for SaaS positioning */}
 
         {/* Home page quick contact form */}
         <section id="contact" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 border-t border-white/10">
