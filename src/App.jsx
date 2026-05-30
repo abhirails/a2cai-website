@@ -298,7 +298,15 @@ function App() {
   const [submitStatus, setSubmitStatus] = useState("idle"); // 'idle' | 'submitting' | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Parse query parameter for contact form
+  const getQueryParam = (name) => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      return searchParams.get(name) || "";
+    } catch {
+      return "";
+    }
+  };
+
   const getInitialTopic = () => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
@@ -315,11 +323,11 @@ function App() {
   };
 
   const [contactForm, setContactForm] = useState({
-    name: "",
-    email: "",
-    company_name: "",
-    topic: getInitialTopic(),
-    message: "",
+    name: getQueryParam("name"),
+    email: getQueryParam("email"),
+    company_name: getQueryParam("company") || getQueryParam("company_name"),
+    topic: getQueryParam("topic") || getInitialTopic(),
+    message: getQueryParam("message"),
   });
 
   // Navigate utility using history pushState and state synchronization
@@ -328,22 +336,13 @@ function App() {
 
     // Get the pathname part for routing logic
     const targetPathname = new URL(to, window.location.origin).pathname;
+    
+    const isFragment = to.includes("#");
+    const isSamePath = targetPathname === getPath();
 
-    if (to.includes("#")) {
-      const [basePathWithQuery, hash] = to.split("#");
-      // Strip query parameters from basePath for routing matching
-      const basePath = basePathWithQuery.split("?")[0];
-      const normalizedBase = basePath === "" ? "/" : basePath;
-
-      if (currentPath === normalizedBase) {
-        const target = document.getElementById(hash);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      } else {
-        window.history.pushState({}, "", to);
-        setCurrentPath(normalizedBase);
-
+    if (isSamePath) {
+      if (isFragment) {
+        const hash = to.split("#")[1];
         setTimeout(() => {
           const target = document.getElementById(hash);
           if (target) {
@@ -357,7 +356,7 @@ function App() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Prefill contact topic if navigating to contact path
+    // Prefill contact topic/fields if navigating to contact path
     if (targetPathname === "/contact") {
       const queryStr = to.includes("?")
         ? "?" + to.split("?")[1]
@@ -366,6 +365,10 @@ function App() {
         const searchParams = new URLSearchParams(queryStr);
         const plan = searchParams.get("plan");
         const topic = searchParams.get("topic");
+        const email = searchParams.get("email");
+        const name = searchParams.get("name");
+        const company = searchParams.get("company") || searchParams.get("company_name");
+        const message = searchParams.get("message");
         let prefill = "HireSetu demo";
         if (plan) {
           prefill = `HireSetu plan inquiry: ${plan}`;
@@ -375,6 +378,10 @@ function App() {
         setContactForm((prev) => ({
           ...prev,
           topic: prefill,
+          ...(email && { email }),
+          ...(name && { name }),
+          ...(company && { company_name: company }),
+          ...(message && { message }),
         }));
       } catch {
         // ignore
@@ -388,12 +395,16 @@ function App() {
       const path = getPath();
       setCurrentPath(path);
       
-      // Update contact form topic if popping back to /contact
+      // Update contact form topic/fields if popping back to /contact
       if (path === "/contact") {
         try {
           const searchParams = new URLSearchParams(window.location.search);
           const plan = searchParams.get("plan");
           const topic = searchParams.get("topic");
+          const email = searchParams.get("email");
+          const name = searchParams.get("name");
+          const company = searchParams.get("company") || searchParams.get("company_name");
+          const message = searchParams.get("message");
           let prefill = "HireSetu demo";
           if (plan) {
             prefill = `HireSetu plan inquiry: ${plan}`;
@@ -403,6 +414,10 @@ function App() {
           setContactForm((prev) => ({
             ...prev,
             topic: prefill,
+            ...(email && { email }),
+            ...(name && { name }),
+            ...(company && { company_name: company }),
+            ...(message && { message }),
           }));
         } catch {
           // ignore
@@ -893,15 +908,32 @@ function App() {
                     disabled={submitStatus === "submitting"}
                     required
                   />
-                  <button
-                    id="contact-submit-home"
-                    type="submit"
-                    disabled={submitStatus === "submitting"}
-                    className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
-                  >
-                    {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
-                    {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      id="contact-submit-home"
+                      type="submit"
+                      disabled={submitStatus === "submitting"}
+                      className="flex-1 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
+                    >
+                      {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
+                      {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setContactForm({
+                          name: "John Snow",
+                          email: "john.snow.sina@gmail.com",
+                          company_name: "Stark Corp",
+                          topic: "HireSetu demo",
+                          message: "Requesting developer sandbox demo access."
+                        });
+                      }}
+                      className="inline-flex items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-950/20 px-6 py-4 text-xs font-bold text-cyan-300 transition hover:bg-cyan-950/40 cursor-pointer border-none"
+                    >
+                      ⚡ Autofill Demo
+                    </button>
+                  </div>
                 </form>
               )}
             </div>
@@ -1394,15 +1426,32 @@ function App() {
                   />
                 </div>
                 
-                <button
-                  id="contact-submit"
-                  type="submit"
-                  disabled={submitStatus === "submitting"}
-                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
-                >
-                  {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
-                  {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    id="contact-submit"
+                    type="submit"
+                    disabled={submitStatus === "submitting"}
+                    className="flex-1 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-4 text-sm font-black text-white shadow-[0_0_35px_rgba(34,211,238,0.24)] transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
+                  >
+                    {submitStatus === "submitting" ? "Sending..." : "Send Enquiry"}
+                    {submitStatus !== "submitting" && <ChevronRight className="ml-2 h-4 w-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContactForm({
+                        name: "John Snow",
+                        email: "john.snow.sina@gmail.com",
+                        company_name: "Stark Corp",
+                        topic: "HireSetu demo",
+                        message: "Requesting developer sandbox demo access."
+                      });
+                    }}
+                    className="inline-flex items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-950/20 px-6 py-4 text-xs font-bold text-cyan-300 transition hover:bg-cyan-950/40 cursor-pointer border-none"
+                  >
+                    ⚡ Autofill Demo
+                  </button>
+                </div>
               </form>
             )}
           </div>
